@@ -4,7 +4,7 @@ namespace Movies.Application.Repositories;
 
 public class MovieRepository : IMovieRepository
 {
-    private readonly List<Movie> _movies = new();
+    private readonly List<Movie> _movies = [];
 
     public Task<bool> CreateAsync(Movie movie)
     {
@@ -15,6 +15,12 @@ public class MovieRepository : IMovieRepository
     public Task<Movie?> GetByIdAsync(Guid id)
     {
         var movie = _movies.SingleOrDefault(movie => movie.Id == id);
+        return Task.FromResult(movie);
+    }
+
+    public Task<Movie?> GetBySlugAsync(string slug)
+    {
+        var movie = _movies.SingleOrDefault(movie => movie.Slug == slug);
         return Task.FromResult(movie);
     }
 
