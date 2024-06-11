@@ -1,3 +1,6 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Movies.Api.Mapping;
 using Movies.Application;
 using Movies.Application.Database;
@@ -6,7 +9,22 @@ var builder = WebApplication.CreateBuilder(args);
 var configurationManager = builder.Configuration;
 
 // Add services to the container.
-
+builder
+    .Services.AddAuthentication(configureOptions =>
+    {
+        configureOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        configureOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        configureOptions.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(bearerOptions =>
+    {
+        bearerOptions.TokenValidationParameters = new TokenValidationParameters()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(configurationManager["Jwt:Key"]!)
+            )
+        };
+    });
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
