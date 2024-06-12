@@ -22,9 +22,16 @@ builder
         {
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(configurationManager["Jwt:Key"]!)
-            )
+            ),
+            ValidateIssuerSigningKey = true,
+            ValidateLifetime = true,
+            ValidIssuer = configurationManager["Jwt:Issuer"],
+            ValidAudience = configurationManager["Jwt:Audience"],
+            ValidateIssuer = true,
+            ValidateAudience = true
         };
     });
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +50,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseMiddleware<ValidationMappingMiddleware>();
