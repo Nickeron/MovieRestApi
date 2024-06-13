@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +38,18 @@ builder
     .AddPolicy(
         AuthConstants.AdminUserPolicyName,
         policyBuilder => policyBuilder.RequireClaim(AuthConstants.AdminUserClaimName, "true")
+    )
+    .AddPolicy(
+        AuthConstants.TrustedUserPolicyName,
+        policyBuilder =>
+            policyBuilder.RequireAssertion(context =>
+                context.User.HasClaim(claim =>
+                    claim is { Type: AuthConstants.TrustedUserClaimName, Value: "true" }
+                )
+                || context.User.HasClaim(claim =>
+                    claim is { Type: AuthConstants.AdminUserClaimName, Value: "true" }
+                )
+            )
     );
 builder.Services.AddControllers();
 
