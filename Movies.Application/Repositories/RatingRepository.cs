@@ -5,6 +5,35 @@ namespace Movies.Application.Repositories;
 
 public class RatingRepository(IDbConnectionFactory dbConnectionFactory) : IRatingRepository
 {
+    public async Task<bool> RateMovieAsync(
+        Guid movieId,
+        Guid userId,
+        int rating,
+        CancellationToken cancellationToken = default
+    )
+    {
+        using var connection = await dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+        var result = await connection.ExecuteAsync(
+            new CommandDefinition(
+                """
+                 insert into ratings(userid, movieid, rating)
+                 values (@userid, @movieid, @rating)
+                 on conflict (userid, movieid) do update
+                 set rating = @rating
+                """,
+                new
+                {
+                    userId,
+                    movieId,
+                    rating
+                },
+                cancellationToken: cancellationToken
+            )
+        );
+
+        return result > 0;
+    }
+
     public async Task<float?> GetRatingAsync(
         Guid movieId,
         CancellationToken cancellationToken = default
