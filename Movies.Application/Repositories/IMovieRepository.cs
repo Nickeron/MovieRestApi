@@ -23,11 +23,7 @@ public interface IMovieRepository
         Guid? userId = default,
         CancellationToken cancellationToken = default
     );
-    Task<bool> UpdateAsync(
-        Movie movie,
-        Guid? userId = default,
-        CancellationToken cancellationToken = default
-    );
+    Task<bool> UpdateAsync(Movie movie, CancellationToken cancellationToken = default);
     Task<bool> DeleteByIdAsync(
         Guid id,
         Guid? userId = default,

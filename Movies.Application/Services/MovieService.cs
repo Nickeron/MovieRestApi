@@ -4,8 +4,11 @@ using Movies.Application.Repositories;
 
 namespace Movies.Application.Services;
 
-public class MovieService(IMovieRepository movieRepository, IValidator<Movie> validator)
-    : IMovieService
+public class MovieService(
+    IMovieRepository movieRepository,
+    IValidator<Movie> validator,
+    IRatingRepository ratingRepository
+) : IMovieService
 {
     public async Task<bool> CreateAsync(
         Movie movie,
@@ -45,7 +48,7 @@ public class MovieService(IMovieRepository movieRepository, IValidator<Movie> va
 
     public async Task<Movie?> UpdateAsync(
         Movie movie,
-        Guid? userId = default,
+        Guid? userId,
         CancellationToken cancellationToken = default
     )
     {
@@ -54,8 +57,21 @@ public class MovieService(IMovieRepository movieRepository, IValidator<Movie> va
         if (!movieExists)
             return null;
 
-        await movieRepository.UpdateAsync(movie, userId, cancellationToken);
+        await movieRepository.UpdateAsync(movie, cancellationToken);
 
+        if (userId.HasValue)
+        {
+            var ratings = await ratingRepository.GetUserRatingAsync(
+                movie.Id,
+                userId.Value,
+                cancellationToken
+            );
+            movie.Rating = ratings.Rating;
+            movie.UserRating = ratings.UserRating;
+            return movie;
+        }
+        var rating = await ratingRepository.GetRatingAsync(movie.Id, cancellationToken);
+        movie.Rating = rating;
         return movie;
     }
 
