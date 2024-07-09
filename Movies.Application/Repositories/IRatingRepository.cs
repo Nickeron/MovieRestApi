@@ -14,4 +14,10 @@ public interface IRatingRepository
         Guid userId,
         CancellationToken cancellationToken = default
     );
+
+    Task<bool> DeleteRatingAsync(
+        Guid movieId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    );
 }

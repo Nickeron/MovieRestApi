@@ -1,7 +1,3 @@
-using FluentValidation;
-using FluentValidation.Results;
-using Movies.Application.Repositories;
-
 namespace Movies.Application.Services;
 
 public interface IRatingService
@@ -12,36 +8,10 @@ public interface IRatingService
         int rating,
         CancellationToken cancellationToken = default
     );
-}
 
-public class RatingService(IRatingRepository ratingRepository, IMovieRepository movieRepository)
-    : IRatingService
-{
-    public async Task<bool> RateMovieAsync(
+    Task<bool> DeleteRatingAsync(
         Guid movieId,
         Guid userId,
-        int rating,
         CancellationToken cancellationToken = default
-    )
-    {
-        if (rating is <= 0 or > 10)
-        {
-            throw new ValidationException(
-                new[]
-                {
-                    new ValidationFailure
-                    {
-                        PropertyName = "Rating",
-                        ErrorMessage = "Rating must be between 1 and 10"
-                    }
-                }
-            );
-        }
-
-        var movieExists = await movieRepository.ExistsByIdAsync(movieId, cancellationToken);
-        if (!movieExists)
-            return false;
-
-        return await ratingRepository.RateMovieAsync(movieId, userId, rating, cancellationToken);
-    }
+    );
 }
