@@ -1,3 +1,5 @@
+using Movies.Application.Models;
+
 namespace Movies.Application.Services;
 
 public interface IRatingService
@@ -11,6 +13,11 @@ public interface IRatingService
 
     Task<bool> DeleteRatingAsync(
         Guid movieId,
+        Guid userId,
+        CancellationToken cancellationToken = default
+    );
+
+    Task<IEnumerable<MovieRating>> GetUserRatingsAsync(
         Guid userId,
         CancellationToken cancellationToken = default
     );
