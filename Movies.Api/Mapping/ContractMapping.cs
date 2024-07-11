@@ -50,4 +50,13 @@ public static class ContractMapping
     public static IEnumerable<MovieRatingResponse> MapToResponse(
         this IEnumerable<MovieRating> ratings
     ) => ratings.Select(MapToResponse);
+
+    public static GetAllMoviesOptions MapToOptions(this GetAllMoviesRequest request) =>
+        new(request.Title, request.YearOfRelease);
+
+    public static GetAllMoviesOptions WithUser(this GetAllMoviesOptions options, Guid? userId)
+    {
+        options.UserId = userId;
+        return options;
+    }
 }

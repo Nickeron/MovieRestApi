@@ -128,7 +128,7 @@ public class MovieRepository(IDbConnectionFactory dbConnectionFactory) : IMovieR
     }
 
     public async Task<IEnumerable<Movie>> GetAllAsync(
-        Guid? userId = default,
+        GetAllMoviesOptions options,
         CancellationToken cancellationToken = default
     )
     {
@@ -144,10 +144,17 @@ public class MovieRepository(IDbConnectionFactory dbConnectionFactory) : IMovieR
                 left join genres g on m.id = g.movieid
                 left join ratings r on m.id = r.movieid
                 left join ratings mr on m.id = mr.movieid
-                and mr.userid = @userid
-                group by id
+                    and mr.userid = @userid
+                where (@title is null or m.title like ('%' || @title || '%'))
+                    and (@yearOfRelease is null or m.yearofrelease = @yearOfRelease)
+                group by id, userrating
                 """,
-                new { userId },
+                new
+                {
+                    userId = options.UserId,
+                    title = options.Title,
+                    yearOfRelease = options.YearOfRelease
+                },
                 cancellationToken: cancellationToken
             )
         );
