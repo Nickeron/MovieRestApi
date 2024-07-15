@@ -4,7 +4,9 @@ public record GetAllMoviesOptions(
     string? Title,
     int? YearOfRelease,
     string? SortField,
-    SortOrder? SortOrder
+    SortOrder? SortOrder,
+    int Page,
+    int PageSize
 )
 {
     public Guid? UserId { get; set; }

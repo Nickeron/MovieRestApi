@@ -44,8 +44,19 @@ public static class ContractMapping
             Rating = rating.Rating,
         };
 
-    public static MoviesResponse MapToResponse(this IEnumerable<Movie> movies) =>
-        new() { Items = movies.Select(MapToResponse) };
+    public static MoviesResponse MapToResponse(
+        this IEnumerable<Movie> movies,
+        int page,
+        int pageSize,
+        int count
+    ) =>
+        new()
+        {
+            Items = movies.Select(MapToResponse),
+            Page = page,
+            PageSize = pageSize,
+            Total = count
+        };
 
     public static IEnumerable<MovieRatingResponse> MapToResponse(
         this IEnumerable<MovieRating> ratings
@@ -56,7 +67,9 @@ public static class ContractMapping
             request.Title,
             request.YearOfRelease,
             request.SortBy?.Trim('+', '-'),
-            MapToSortOrder(request.SortBy)
+            MapToSortOrder(request.SortBy),
+            request.Page,
+            request.PageSize
         );
 
     private static SortOrder MapToSortOrder(string? sortBy)
