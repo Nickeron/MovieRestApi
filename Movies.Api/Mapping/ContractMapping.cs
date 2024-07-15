@@ -52,7 +52,21 @@ public static class ContractMapping
     ) => ratings.Select(MapToResponse);
 
     public static GetAllMoviesOptions MapToOptions(this GetAllMoviesRequest request) =>
-        new(request.Title, request.YearOfRelease);
+        new(
+            request.Title,
+            request.YearOfRelease,
+            request.SortBy?.Trim('+', '-'),
+            MapToSortOrder(request.SortBy)
+        );
+
+    private static SortOrder MapToSortOrder(string? sortBy)
+    {
+        return sortBy is null
+            ? SortOrder.Unsorted
+            : sortBy.StartsWith('-')
+                ? SortOrder.Descending
+                : SortOrder.Ascending;
+    }
 
     public static GetAllMoviesOptions WithUser(this GetAllMoviesOptions options, Guid? userId)
     {

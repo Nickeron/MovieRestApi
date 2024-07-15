@@ -134,9 +134,20 @@ public class MovieRepository(IDbConnectionFactory dbConnectionFactory) : IMovieR
     {
         using var connection = await dbConnectionFactory.CreateConnectionAsync(cancellationToken);
 
+        var orderClause = string.Empty;
+
+        if (options.SortField is not null)
+        {
+            orderClause = $"""
+                           , m.{options.SortField}
+                            order by m.{options.SortField} {(
+                    options.SortOrder == SortOrder.Ascending ? "asc" : "desc"
+                )}
+                """;
+        }
         var movies = await connection.QueryAsync(
             new CommandDefinition(
-                """
+                $"""
                 select m.*, string_agg(distinct g.name, ',') as genres,
                        round(avg(r.rating), 1) as rating,
                        mr.rating as userrating
@@ -147,7 +158,7 @@ public class MovieRepository(IDbConnectionFactory dbConnectionFactory) : IMovieR
                     and mr.userid = @userid
                 where (@title is null or m.title like ('%' || @title || '%'))
                     and (@yearOfRelease is null or m.yearofrelease = @yearOfRelease)
-                group by id, userrating
+                group by id, userrating {orderClause}
                 """,
                 new
                 {
